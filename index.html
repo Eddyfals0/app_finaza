@@ -601,10 +601,15 @@
 
             for (const rule of recurringExpenses) {
                 const generatedExpensesForRule = expenses.filter(e => e.recurringRuleId === rule.id);
-                let lastGenDate = new Date(1970, 0, 1);
+                let lastGenDate;
+
                 if (generatedExpensesForRule.length > 0) {
                     generatedExpensesForRule.sort((a, b) => new Date(b.date) - new Date(a.date));
                     lastGenDate = new Date(generatedExpensesForRule[0].date + 'T00:00:00');
+                } else {
+                    // BUG FIX: If no expenses exist for this rule, it's brand new.
+                    // To prevent generating past expenses, treat the "last generated date" as today.
+                    lastGenDate = new Date();
                 }
 
                 let cursorDate = new Date(lastGenDate.getUTCFullYear(), lastGenDate.getUTCMonth() + 1, 1);
