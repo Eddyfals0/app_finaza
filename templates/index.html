@@ -147,15 +147,44 @@
                                     <input type="number" id="expenseAmount" name="expenseAmount" required min="0.01" step="0.01" class="block w-full rounded-md border-gray-300 pl-7 pr-12 focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" placeholder="0.00">
                                 </div>
                             </div>
+                            
+                            <!-- Opciones de Gasto Recurrente -->
                             <div class="relative flex items-start">
                                 <div class="flex h-5 items-center">
                                     <input id="isRecurring" name="isRecurring" type="checkbox" class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">
                                 </div>
                                 <div class="ml-3 text-sm">
                                     <label for="isRecurring" class="font-medium text-gray-700">Gasto Recurrente</label>
-                                    <p class="text-gray-500">Se cobrará cada mes en el día de hoy.</p>
+                                    <p class="text-gray-500">Marque si este gasto se repetirá mensualmente.</p>
                                 </div>
                             </div>
+
+                            <div id="recurringOptions" class="hidden space-y-4 pl-8 border-l-2 border-indigo-200 ml-2 py-2">
+                                <p class="text-sm font-medium text-gray-700">¿Cuándo se debe cobrar?</p>
+                                <div class="relative flex items-start">
+                                    <div class="flex h-5 items-center">
+                                        <input id="recurringTypeToday" name="recurringType" type="radio" value="today" checked class="h-4 w-4 border-gray-300 text-indigo-600 focus:ring-indigo-500">
+                                    </div>
+                                    <div class="ml-3 text-sm">
+                                        <label for="recurringTypeToday" class="font-medium text-gray-900">El mismo día de hoy</label>
+                                        <p class="text-gray-500">Se cobrará el día <span id="todayDateSpan"></span> de cada mes.</p>
+                                    </div>
+                                </div>
+                                <div class="relative flex items-start">
+                                    <div class="flex h-5 items-center">
+                                        <input id="recurringTypeSpecific" name="recurringType" type="radio" value="specific" class="h-4 w-4 border-gray-300 text-indigo-600 focus:ring-indigo-500">
+                                    </div>
+                                    <div class="ml-3 text-sm">
+                                        <label for="recurringTypeSpecific" class="font-medium text-gray-900">Un día específico del mes</label>
+                                    </div>
+                                </div>
+                                <div id="specificDayWrapper" class="hidden pl-8">
+                                    <label for="specificDayInput" class="block text-sm font-medium text-gray-700">Día del mes (1-31)</label>
+                                    <input type="number" id="specificDayInput" name="specificDayInput" min="1" max="31" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" placeholder="Ej. 15">
+                                    <p class="mt-1 text-xs text-gray-500">Si el mes no tiene el día seleccionado (ej. día 31 en febrero), se usará el último día del mes.</p>
+                                </div>
+                            </div>
+                            
                             <button type="submit" class="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-150">
                                 Agregar Gasto
                             </button>
@@ -266,6 +295,12 @@
         const views = document.querySelectorAll('.view');
         const sidebarLinks = document.querySelectorAll('.sidebar-link');
         
+        // Recurring expenses elements
+        const isRecurringCheckbox = document.getElementById('isRecurring');
+        const recurringOptionsDiv = document.getElementById('recurringOptions');
+        const specificDayWrapper = document.getElementById('specificDayWrapper');
+        const todayDateSpan = document.getElementById('todayDateSpan');
+
         // Modals
         const confirmationModal = document.getElementById('confirmationModal');
         const modalTitle = document.getElementById('modalTitle');
@@ -287,24 +322,21 @@
         function initDB() {
             return new Promise((resolve, reject) => {
                 const request = indexedDB.open(DB_NAME, DB_VERSION);
-                
                 request.onerror = () => reject(request.error);
                 request.onsuccess = () => {
                     db = request.result;
                     resolve(db);
                 };
-                
                 request.onupgradeneeded = (event) => {
                     const db = event.target.result;
-                    
                     if (!db.objectStoreNames.contains(STORES.PEOPLE)) {
-                        const peopleStore = db.createObjectStore(STORES.PEOPLE, { keyPath: 'id', autoIncrement: true });
-                        peopleStore.createIndex('name', 'name', { unique: false });
+                        db.createObjectStore(STORES.PEOPLE, { keyPath: 'id', autoIncrement: true });
                     }
                     if (!db.objectStoreNames.contains(STORES.EXPENSES)) {
                         const expensesStore = db.createObjectStore(STORES.EXPENSES, { keyPath: 'id', autoIncrement: true });
                         expensesStore.createIndex('personId', 'personId', { unique: false });
                         expensesStore.createIndex('date', 'date', { unique: false });
+                        expensesStore.createIndex('recurringRuleId', 'recurringRuleId', { unique: false });
                     }
                     if (!db.objectStoreNames.contains(STORES.RECURRING_EXPENSES)) {
                         const recurringStore = db.createObjectStore(STORES.RECURRING_EXPENSES, { keyPath: 'id', autoIncrement: true });
@@ -393,14 +425,16 @@
 
         async function loadData() {
             try {
+                db = await initDB();
                 people = await getAllFromStore(STORES.PEOPLE);
                 expenses = await getAllFromStore(STORES.EXPENSES);
                 recurringExpenses = await getAllFromStore(STORES.RECURRING_EXPENSES);
                 
                 renderPeople();
                 updateSelectOptions();
+                await checkAndCreateRecurringExpenses();
                 renderExpenses();
-                checkAndCreateRecurringExpenses();
+
             } catch (error) {
                 console.error('Error cargando datos:', error);
             }
@@ -475,9 +509,7 @@
             filteredExpenses.forEach(expense => {
                 const expenseEl = document.createElement('div');
                 expenseEl.className = 'flex flex-col sm:flex-row items-start sm:items-center justify-between bg-gray-50 p-3 rounded-lg border gap-2';
-                
                 const formattedDate = formatSingleDate(expense.date);
-
                 expenseEl.innerHTML = `
                     <div class="flex-1">
                         <p class="font-semibold text-gray-800">${expense.description}</p>
@@ -511,23 +543,18 @@
                 showConfirmationModal("Sin Gastos", "No hay gastos para compartir.", () => closeAllModals());
                 return;
             }
-
             let message = "*Resumen de Gastos*\n\n";
             let total = 0;
-
             const selectedPersonId = filterPersonSelect.value;
             if (selectedPersonId !== 'all') {
                 const personName = filterPersonSelect.options[filterPersonSelect.selectedIndex].text;
                 message = `*Resumen de Gastos para ${personName}*\n\n`;
             }
-
             filteredExpenses.forEach(exp => {
                 message += `• ${exp.description}: ${formatCurrency(exp.amount)}\n`;
                 total += parseFloat(exp.amount);
             });
-
             message += `-------------------\n*Total:* ${formatCurrency(total)}`;
-            
             shareText.value = message;
             copyFeedback.textContent = '';
             shareModal.classList.remove('hidden');
@@ -570,13 +597,19 @@
             isCheckingRecurring = true;
 
             const today = new Date();
-            const newExpenses = [];
-            
-            for (const rule of recurringExpenses) {
-                let lastGenDate = new Date(rule.lastGeneratedYear, rule.lastGeneratedMonth, 1);
-                let cursorDate = new Date(lastGenDate.getFullYear(), lastGenDate.getMonth() + 1, rule.dayOfMonth);
+            const newExpensesCreated = [];
 
-                while(cursorDate <= today) {
+            for (const rule of recurringExpenses) {
+                const generatedExpensesForRule = expenses.filter(e => e.recurringRuleId === rule.id);
+                let lastGenDate = new Date(1970, 0, 1);
+                if (generatedExpensesForRule.length > 0) {
+                    generatedExpensesForRule.sort((a, b) => new Date(b.date) - new Date(a.date));
+                    lastGenDate = new Date(generatedExpensesForRule[0].date + 'T00:00:00');
+                }
+
+                let cursorDate = new Date(lastGenDate.getUTCFullYear(), lastGenDate.getUTCMonth() + 1, 1);
+
+                while (cursorDate <= today) {
                     const year = cursorDate.getFullYear();
                     const month = cursorDate.getMonth();
                     
@@ -587,23 +620,28 @@
                     );
 
                     if (!expenseAlreadyExists) {
-                        const newExpenseDate = new Date(Date.UTC(year, month, rule.dayOfMonth));
-                        const expenseData = {
-                            personId: rule.personId, 
-                            personName: rule.personName,
-                            description: rule.description, 
-                            amount: rule.amount,
-                            date: newExpenseDate.toISOString().split('T')[0],
-                            recurringRuleId: rule.id
-                        };
-                        newExpenses.push(expenseData);
+                        const lastDayOfMonth = new Date(year, month + 1, 0).getDate();
+                        const chargeDay = Math.min(rule.dayOfMonth, lastDayOfMonth);
+                        const newExpenseDate = new Date(Date.UTC(year, month, chargeDay));
+                        const todayWithoutTime = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+
+                        if (newExpenseDate <= todayWithoutTime) {
+                            const expenseData = {
+                                personId: rule.personId,
+                                personName: rule.personName,
+                                description: rule.description,
+                                amount: rule.amount,
+                                date: newExpenseDate.toISOString().split('T')[0],
+                                recurringRuleId: rule.id
+                            };
+                            newExpensesCreated.push(expenseData);
+                        }
                     }
-                    
-                    cursorDate = new Date(cursorDate.getFullYear(), cursorDate.getMonth() + 1, rule.dayOfMonth);
+                    cursorDate = new Date(cursorDate.getFullYear(), cursorDate.getMonth() + 1, 1);
                 }
             }
 
-            for (const expenseData of newExpenses) {
+            for (const expenseData of newExpensesCreated) {
                 try {
                     const expenseId = await addToStore(STORES.EXPENSES, expenseData);
                     expenseData.id = expenseId;
@@ -612,10 +650,7 @@
                     console.error("Error creating recurring expense:", error);
                 }
             }
-
-            if (newExpenses.length > 0) {
-                renderExpenses();
-            }
+            
             isCheckingRecurring = false;
         }
 
@@ -625,43 +660,57 @@
             const personName = addExpenseForm.expensePerson.options[addExpenseForm.expensePerson.selectedIndex].dataset.name;
             const description = addExpenseForm.expenseDescription.value.trim();
             const amount = parseFloat(addExpenseForm.expenseAmount.value);
-            const isRecurring = addExpenseForm.isRecurring.checked;
+            const isRecurring = isRecurringCheckbox.checked;
             const today = new Date();
 
             if (!personId || !description || !amount) return;
 
             try {
                 if (isRecurring) {
-                    const dayOfMonth = today.getDate();
-                    const recurringData = {
-                        personId, personName, description, amount, dayOfMonth,
-                        lastGeneratedYear: today.getFullYear(),
-                        lastGeneratedMonth: today.getMonth()
-                    };
+                    const recurringType = document.querySelector('input[name="recurringType"]:checked').value;
+                    let dayOfMonth;
+
+                    if (recurringType === 'specific') {
+                        const specificDay = parseInt(document.getElementById('specificDayInput').value);
+                        if (!specificDay || specificDay < 1 || specificDay > 31) {
+                            alert("Por favor, introduce un día del mes válido (1-31).");
+                            return;
+                        }
+                        dayOfMonth = specificDay;
+                    } else {
+                        dayOfMonth = today.getDate();
+                    }
+                    
+                    // 1. Create and save the recurring RULE
+                    const recurringData = { personId, personName, description, amount, dayOfMonth };
                     const recurringId = await addToStore(STORES.RECURRING_EXPENSES, recurringData);
                     recurringData.id = recurringId;
                     recurringExpenses.push(recurringData);
-                    
-                    const expenseData = {
-                        personId, personName, description, amount,
-                        date: today.toISOString().split('T')[0],
-                        recurringRuleId: recurringId
+
+                    // 2. Manually create and save the FIRST expense instance for today.
+                    const firstExpenseData = {
+                        personId,
+                        personName,
+                        description,
+                        amount,
+                        date: today.toISOString().split('T')[0], // Use today's date
+                        recurringRuleId: recurringId // Link it to the new rule
                     };
-                    const expenseId = await addToStore(STORES.EXPENSES, expenseData);
-                    expenseData.id = expenseId;
-                    expenses.push(expenseData);
+                    const firstExpenseId = await addToStore(STORES.EXPENSES, firstExpenseData);
+                    firstExpenseData.id = firstExpenseId;
+                    expenses.push(firstExpenseData);
 
                 } else {
-                    const expenseData = {
-                        personId, personName, description, amount,
-                        date: today.toISOString().split('T')[0]
-                    };
+                    const expenseData = { personId, personName, description, amount, date: today.toISOString().split('T')[0] };
                     const expenseId = await addToStore(STORES.EXPENSES, expenseData);
                     expenseData.id = expenseId;
                     expenses.push(expenseData);
                 }
                 
                 addExpenseForm.reset();
+                recurringOptionsDiv.classList.add('hidden');
+                specificDayWrapper.classList.add('hidden');
+                isRecurringCheckbox.checked = false;
                 renderExpenses();
                 document.querySelector('.sidebar-link[href="#view-panel"]').click();
             } catch (error) {
@@ -683,19 +732,15 @@
         async function handleDeletePerson(personId) {
              showConfirmationModal(
                 'Eliminar Persona',
-                'Esto eliminará a la persona, todos sus gastos y sus gastos recurrentes. ¿Estás seguro?',
+                'Esto eliminará a la persona y todos sus gastos (incluyendo recurrentes). ¿Estás seguro?',
                 async () => {
                     try {
-                        const personExpenses = expenses.filter(e => e.personId === personId);
-                        for (const expense of personExpenses) {
-                            await deleteFromStore(STORES.EXPENSES, expense.id);
-                        }
+                        const expensesToDelete = expenses.filter(e => e.personId === personId);
+                        for (const expense of expensesToDelete) await deleteFromStore(STORES.EXPENSES, expense.id);
                         expenses = expenses.filter(e => e.personId !== personId);
                         
-                        const personRecurring = recurringExpenses.filter(r => r.personId === personId);
-                        for (const recurring of personRecurring) {
-                            await deleteFromStore(STORES.RECURRING_EXPENSES, recurring.id);
-                        }
+                        const recurringToDelete = recurringExpenses.filter(r => r.personId === personId);
+                        for (const recurring of recurringToDelete) await deleteFromStore(STORES.RECURRING_EXPENSES, recurring.id);
                         recurringExpenses = recurringExpenses.filter(r => r.personId !== personId);
                         
                         await deleteFromStore(STORES.PEOPLE, personId);
@@ -725,13 +770,11 @@
         
         async function handleDeleteVisibleExpenses() {
             const visibleExpenses = getFilteredExpenses();
-
             if (visibleExpenses.length === 0) {
-                showConfirmationModal('Sin Gastos', 'No hay gastos mostrados en la lista para eliminar.', () => closeAllModals());
+                showConfirmationModal('Sin Gastos', 'No hay gastos mostrados para eliminar.', () => closeAllModals());
                 return;
             }
-
-            const message = `Se eliminarán los ${visibleExpenses.length} gastos mostrados en la lista. ¿Estás seguro?`;
+            const message = `Se eliminarán los ${visibleExpenses.length} gastos mostrados. ¿Estás seguro?`;
             showConfirmationModal('Eliminar Gastos Visibles', message,
                 async () => {
                     try {
@@ -739,9 +782,7 @@
                         for (const id of idsToDelete) {
                             await deleteFromStore(STORES.EXPENSES, id);
                         }
-                        
                         expenses = expenses.filter(exp => !idsToDelete.includes(exp.id));
-                        
                         renderExpenses();
                     } catch(error) {
                         console.error("Error al eliminar los gastos visibles:", error);
@@ -754,16 +795,7 @@
         
         // --- INICIALIZACIÓN Y EVENT LISTENERS ---
         
-        async function initializeApp() {
-            try {
-                await initDB();
-                await loadData();
-            } catch (error) {
-                console.error('Error inicializando la aplicación:', error);
-            }
-        }
-
-        document.addEventListener('DOMContentLoaded', initializeApp);
+        document.addEventListener('DOMContentLoaded', loadData);
 
         menuButton.addEventListener('click', (e) => {
             e.stopPropagation();
@@ -817,6 +849,20 @@
         closeRecurringModalButton.addEventListener('click', closeAllModals);
         closeShareModalButton.addEventListener('click', closeAllModals);
         copyButton.addEventListener('click', handleCopyToClipboard);
+
+        // Event listeners for new recurring options
+        isRecurringCheckbox.addEventListener('change', () => {
+            recurringOptionsDiv.classList.toggle('hidden', !isRecurringCheckbox.checked);
+            if(isRecurringCheckbox.checked) {
+                todayDateSpan.textContent = new Date().getDate();
+            }
+        });
+
+        document.querySelectorAll('input[name="recurringType"]').forEach(radio => {
+            radio.addEventListener('change', (e) => {
+                specificDayWrapper.classList.toggle('hidden', e.target.value !== 'specific');
+            });
+        });
 
     </script>
 </body>
