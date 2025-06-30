@@ -41,14 +41,9 @@
     <div id="app" class="relative min-h-screen md:flex">
         <!-- Barra de Navegación Lateral (Sidebar) -->
         <nav id="sidebar" class="bg-gray-800 text-white w-64 p-4 flex-shrink-0 flex-col space-y-4 fixed inset-y-0 left-0 transform -translate-x-full md:relative md:translate-x-0 transition-transform duration-300 ease-in-out z-30">
-            <!-- Cabecera de la Barra Lateral (Escritorio) -->
-            <div class="pb-4 border-b border-gray-700">
-                 <div class="hidden md:block pt-2">
-                    <h2 id="desktop-header-title" class="text-xl font-bold text-white leading-tight">Registro de Gastos</h2>
-                    <p id="desktop-header-subtitle" class="text-xs text-gray-300 leading-tight mt-1">Visualiza y filtra tus deudas y gastos.</p>
-                </div>
+            <div class="text-center pb-4 border-b border-gray-700">
+                <h1 class="text-2xl font-bold">Finanzas</h1>
             </div>
-
             <ul class="flex-grow">
                 <li><a href="#view-panel" class="sidebar-link flex items-center p-3 rounded-lg hover:bg-gray-700 bg-gray-700"><i class="fas fa-chart-pie w-6"></i><span class="ml-3">Panel Principal</span></a></li>
                 <li><a href="#view-add-expense" class="sidebar-link flex items-center p-3 rounded-lg hover:bg-gray-700"><i class="fas fa-plus-circle w-6"></i><span class="ml-3">Agregar Gasto</span></a></li>
@@ -61,42 +56,30 @@
 
         <!-- Contenido Principal -->
         <div class="flex-1 flex flex-col">
-             <!-- Cabecera Móvil con botón de menú y título dinámico -->
-            <header class="md:hidden flex items-center gap-4 bg-gray-800 text-white p-2.5 sticky top-0 z-10 shadow-md">
-                <button id="menu-button" class="text-white focus:outline-none p-2">
-                    <i class="fas fa-bars text-xl"></i>
+             <!-- Cabecera Móvil con botón de menú -->
+            <header class="md:hidden flex items-center gap-4 bg-gray-800 text-white p-4 sticky top-0 z-10 shadow-md">
+                <button id="menu-button" class="text-white focus:outline-none">
+                    <i class="fas fa-bars text-2xl"></i>
                 </button>
-                <div class="overflow-hidden">
-                    <h2 id="mobile-header-title" class="text-lg font-bold text-white leading-tight truncate">Registro de Gastos</h2>
-                    <p id="mobile-header-subtitle" class="text-xs text-gray-400 leading-tight truncate">Visualiza y filtra tus deudas y gastos.</p>
-                </div>
+                <h1 class="text-xl font-bold">Finanzas</h1>
             </header>
 
             <main id="main-content" class="flex-1 p-4 sm:p-6 md:p-8 overflow-y-auto">
             
                 <!-- Vista: Panel Principal -->
                 <div id="view-panel" class="view">
+                    <header class="mb-8">
+                        <h2 class="text-3xl font-bold text-gray-900">Registro de Gastos</h2>
+                        <p class="text-gray-600 mt-1">Visualiza y filtra tus deudas y gastos.</p>
+                    </header>
                      <div class="bg-white p-4 sm:p-6 rounded-xl shadow-md">
                          <!-- Filtros -->
                         <div class="flex flex-col md:flex-row gap-4 mb-4 pb-4 border-b items-end">
-                            <!-- Filtro de Persona Múltiple -->
                             <div class="flex-1 w-full">
-                                <label for="filterPersonButton" class="block text-sm font-medium text-gray-700">Filtrar por persona</label>
-                                <div class="relative" id="filterPersonContainer">
-                                    <button id="filterPersonButton" type="button" class="mt-1 relative w-full bg-white border border-gray-300 rounded-md shadow-sm pl-3 pr-10 py-2 text-left cursor-default focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
-                                        <span class="block truncate" id="filterPersonText">Todas las personas</span>
-                                        <span class="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
-                                            <svg class="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                                                <path fill-rule="evenodd" d="M10 3a1 1 0 01.707.293l3 3a1 1 0 01-1.414 1.414L10 5.414 7.707 7.707a1 1 0 01-1.414-1.414l3-3A1 1 0 0110 3zm-3.707 9.293a1 1 0 011.414 0L10 14.586l2.293-2.293a1 1 0 011.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd" />
-                                            </svg>
-                                        </span>
-                                    </button>
-                                    <div id="filterPersonDropdown" class="hidden absolute mt-1 w-full rounded-md bg-white shadow-lg z-20">
-                                        <ul class="max-h-60 rounded-md py-1 text-base ring-1 ring-black ring-opacity-5 overflow-auto focus:outline-none sm:text-sm" id="filterPersonList">
-                                            <!-- Las opciones se poblarán con JS -->
-                                        </ul>
-                                    </div>
-                                </div>
+                                <label for="filterPerson" class="block text-sm font-medium text-gray-700">Filtrar por persona</label>
+                                <select id="filterPerson" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md">
+                                    <option value="all">Todas las personas</option>
+                                </select>
                             </div>
                             <div class="flex-1 w-full">
                                 <label for="filterStartDate" class="block text-sm font-medium text-gray-700">Mostrar gastos desde</label>
@@ -139,6 +122,10 @@
 
                 <!-- Vista: Agregar Gasto -->
                 <div id="view-add-expense" class="view hidden">
+                     <header class="mb-8">
+                        <h2 class="text-3xl font-bold text-gray-900">Agregar Gasto/Deuda</h2>
+                        <p class="text-gray-600 mt-1">Registra una nueva transacción.</p>
+                    </header>
                     <div class="bg-white p-6 rounded-xl shadow-md max-w-lg mx-auto">
                         <form id="addExpenseForm" class="space-y-4">
                             <div>
@@ -207,6 +194,10 @@
 
                 <!-- Vista: Personas (Ahora expande y la lista es desplazable) -->
                 <div id="view-people" class="view hidden flex flex-col">
+                     <header class="mb-8">
+                        <h2 class="text-3xl font-bold text-gray-900">Gestionar Personas</h2>
+                         <p class="text-gray-600 mt-1">Agrega o elimina personas de tu lista.</p>
+                    </header>
                     <div class="bg-white p-6 rounded-xl shadow-md max-w-lg mx-auto w-full flex-1 flex flex-col">
                         <form id="addPersonForm" class="space-y-4">
                             <div>
@@ -294,6 +285,7 @@
         const addExpenseForm = document.getElementById('addExpenseForm');
         const peopleListDiv = document.getElementById('peopleList');
         const expensePersonSelect = document.getElementById('expensePerson');
+        const filterPersonSelect = document.getElementById('filterPerson');
         const expensesListDiv = document.getElementById('expensesList');
         const totalAmountEl = document.getElementById('totalAmount');
         const filterMonthCheckbox = document.getElementById('filterMonth');
@@ -303,20 +295,6 @@
         const views = document.querySelectorAll('.view');
         const sidebarLinks = document.querySelectorAll('.sidebar-link');
         
-        // --- Multi-select Filter elements ---
-        const filterPersonContainer = document.getElementById('filterPersonContainer');
-        const filterPersonButton = document.getElementById('filterPersonButton');
-        const filterPersonText = document.getElementById('filterPersonText');
-        const filterPersonDropdown = document.getElementById('filterPersonDropdown');
-        const filterPersonList = document.getElementById('filterPersonList');
-        let selectedPersonIds = [];
-
-        // Header Titles
-        const desktopHeaderTitle = document.getElementById('desktop-header-title');
-        const desktopHeaderSubtitle = document.getElementById('desktop-header-subtitle');
-        const mobileHeaderTitle = document.getElementById('mobile-header-title');
-        const mobileHeaderSubtitle = document.getElementById('mobile-header-subtitle');
-
         // Recurring expenses elements
         const isRecurringCheckbox = document.getElementById('isRecurring');
         const recurringOptionsDiv = document.getElementById('recurringOptions');
@@ -339,13 +317,8 @@
         const copyFeedback = document.getElementById('copyFeedback');
         const closeShareModalButton = document.getElementById('closeShareModalButton');
 
-        const viewHeaders = {
-            'view-panel': { title: 'Registro de Gastos', subtitle: 'Visualiza y filtra tus deudas y gastos.' },
-            'view-add-expense': { title: 'Agregar Gasto', subtitle: 'Registra una nueva transacción.' },
-            'view-people': { title: 'Gestionar Personas', subtitle: 'Agrega o elimina personas de tu lista.' }
-        };
-
         // --- FUNCIONES DE BASE DE DATOS ---
+
         function initDB() {
             return new Promise((resolve, reject) => {
                 const request = indexedDB.open(DB_NAME, DB_VERSION);
@@ -356,7 +329,9 @@
                 };
                 request.onupgradeneeded = (event) => {
                     const db = event.target.result;
-                    if (!db.objectStoreNames.contains(STORES.PEOPLE)) db.createObjectStore(STORES.PEOPLE, { keyPath: 'id', autoIncrement: true });
+                    if (!db.objectStoreNames.contains(STORES.PEOPLE)) {
+                        db.createObjectStore(STORES.PEOPLE, { keyPath: 'id', autoIncrement: true });
+                    }
                     if (!db.objectStoreNames.contains(STORES.EXPENSES)) {
                         const expensesStore = db.createObjectStore(STORES.EXPENSES, { keyPath: 'id', autoIncrement: true });
                         expensesStore.createIndex('personId', 'personId', { unique: false });
@@ -364,11 +339,13 @@
                         expensesStore.createIndex('recurringRuleId', 'recurringRuleId', { unique: false });
                     }
                     if (!db.objectStoreNames.contains(STORES.RECURRING_EXPENSES)) {
-                         db.createObjectStore(STORES.RECURRING_EXPENSES, { keyPath: 'id', autoIncrement: true });
+                        const recurringStore = db.createObjectStore(STORES.RECURRING_EXPENSES, { keyPath: 'id', autoIncrement: true });
+                        recurringStore.createIndex('personId', 'personId', { unique: false });
                     }
                 };
             });
         }
+
         async function addToStore(storeName, data) {
             return new Promise((resolve, reject) => {
                 const transaction = db.transaction([storeName], 'readwrite');
@@ -378,6 +355,7 @@
                 request.onerror = () => reject(request.error);
             });
         }
+
         async function getAllFromStore(storeName) {
             return new Promise((resolve, reject) => {
                 const transaction = db.transaction([storeName], 'readonly');
@@ -387,6 +365,7 @@
                 request.onerror = () => reject(request.error);
             });
         }
+
         async function deleteFromStore(storeName, id) {
             return new Promise((resolve, reject) => {
                 const transaction = db.transaction([storeName], 'readwrite');
@@ -398,10 +377,12 @@
         }
         
         // --- FUNCIONES DE LA APLICACIÓN ---
+
         function closeSidebar() {
             sidebar.classList.add('-translate-x-full');
             sidebarOverlay.classList.add('hidden');
         }
+
         function showConfirmationModal(title, message, onConfirm) {
             modalTitle.textContent = title;
             modalMessage.textContent = message;
@@ -409,6 +390,7 @@
             confirmationModal.classList.remove('hidden');
             confirmationModal.querySelector('.modal-content').classList.add('scale-100');
         }
+        
         function closeAllModals() {
             document.querySelectorAll('.modal').forEach(modal => {
                 modal.classList.add('hidden');
@@ -416,6 +398,7 @@
             });
             confirmAction = null;
         }
+
         function showRecurringModal(personId, personName) {
             recurringModalTitle.textContent = `Gastos Recurrentes de ${personName}`;
             const personRecurringExpenses = recurringExpenses.filter(r => r.personId === personId);
@@ -439,6 +422,7 @@
             recurringExpensesModal.classList.remove('hidden');
             recurringExpensesModal.querySelector('.modal-content').classList.add('scale-100');
         }
+
         async function loadData() {
             try {
                 db = await initDB();
@@ -447,7 +431,7 @@
                 recurringExpenses = await getAllFromStore(STORES.RECURRING_EXPENSES);
                 
                 renderPeople();
-                populatePeopleSelectors();
+                updateSelectOptions();
                 await checkAndCreateRecurringExpenses();
                 renderExpenses();
 
@@ -455,6 +439,7 @@
                 console.error('Error cargando datos:', error);
             }
         }
+        
         function renderPeople() {
             peopleListDiv.innerHTML = '';
             if (people.length === 0) {
@@ -474,14 +459,20 @@
                 peopleListDiv.appendChild(personEl);
             });
         }
-        function getFilteredExpenses() {
-            if (selectedPersonIds.length === 0) return [];
 
+        function updateSelectOptions() {
+            const options = people.map(p => `<option value="${p.id}" data-name="${p.name}">${p.name}</option>`).join('');
+            expensePersonSelect.innerHTML = '<option value="">Selecciona una persona</option>' + options;
+            filterPersonSelect.innerHTML = '<option value="all">Todas las personas</option>' + options;
+        }
+
+        function getFilteredExpenses() {
+            const filterPersonId = filterPersonSelect.value;
             const filterByMonth = filterMonthCheckbox.checked;
             const filterStartDateValue = filterStartDateInput.value;
 
             return expenses.filter(expense => {
-                const personMatch = selectedPersonIds.includes(expense.personId);
+                const personMatch = filterPersonId === 'all' || expense.personId === parseInt(filterPersonId);
                 if (!personMatch) return false;
                 
                 const expenseDate = new Date(expense.date + 'T00:00:00');
@@ -501,6 +492,7 @@
                 return true;
             });
         }
+
         function renderExpenses() {
             expensesListDiv.innerHTML = '';
             const filteredExpenses = getFilteredExpenses();
@@ -534,71 +526,41 @@
 
             totalAmountEl.textContent = formatCurrency(total);
         }
+        
         function formatSingleDate(dateStr) {
-            const options = { day: '2-digit', month: 'short', year: 'numeric', timeZone: 'UTC' };
-            const date = new Date(dateStr);
+            const options = { day: '2-digit', month: 'short', year: 'numeric' };
+            const date = new Date(dateStr + 'T00:00:00');
             return date.toLocaleDateString('es-ES', options);
         }
+
         function formatCurrency(amount) {
             return new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(amount);
         }
+        
         function handleGenerateShareableText() {
             const filteredExpenses = getFilteredExpenses();
             if (filteredExpenses.length === 0) {
                 showConfirmationModal("Sin Gastos", "No hay gastos para compartir.", () => closeAllModals());
                 return;
             }
-
-            let message = "";
+            let message = "*Resumen de Gastos*\n\n";
             let total = 0;
-
-            // 1. Determine the main title
-            if (selectedPersonIds.length === 1) {
-                const personName = people.find(p => p.id === selectedPersonIds[0]).name;
+            const selectedPersonId = filterPersonSelect.value;
+            if (selectedPersonId !== 'all') {
+                const personName = filterPersonSelect.options[filterPersonSelect.selectedIndex].text;
                 message = `*Resumen de Gastos para ${personName}*\n\n`;
-            } else if (selectedPersonIds.length === people.length && people.length > 0) {
-                message = `*Resumen de Gastos (Todas las personas)*\n\n`;
-            } else {
-                const selectedNames = selectedPersonIds.map(id => people.find(p => p.id === id).name).join(', ');
-                message = `*Resumen de Gastos para: ${selectedNames}*\n\n`;
             }
-
-            // 2. Format the expense list
-            if (selectedPersonIds.length > 1) {
-                // Group expenses by person for better readability
-                const expensesByPerson = {};
-                filteredExpenses.forEach(exp => {
-                    if (!expensesByPerson[exp.personName]) {
-                        expensesByPerson[exp.personName] = [];
-                    }
-                    expensesByPerson[exp.personName].push(exp);
-                });
-
-                // Build the message string, grouped by person
-                for (const personName in expensesByPerson) {
-                    message += `*${personName}*\n`;
-                    expensesByPerson[personName].forEach(exp => {
-                        message += `  • ${exp.description}: ${formatCurrency(exp.amount)}\n`;
-                    });
-                     message += `\n`; // Add a space after each person's list
-                }
-            } else {
-                // If only one person is selected, just list their expenses
-                filteredExpenses.forEach(exp => {
-                    message += `• ${exp.description}: ${formatCurrency(exp.amount)}\n`;
-                });
-            }
-
-            // 3. Calculate and add the total
-            total = filteredExpenses.reduce((sum, exp) => sum + parseFloat(exp.amount), 0);
-            message += `-------------------\n*Total General:* ${formatCurrency(total)}`;
-            
-            // 4. Display the modal
+            filteredExpenses.forEach(exp => {
+                message += `• ${exp.description}: ${formatCurrency(exp.amount)}\n`;
+                total += parseFloat(exp.amount);
+            });
+            message += `-------------------\n*Total:* ${formatCurrency(total)}`;
             shareText.value = message;
             copyFeedback.textContent = '';
             shareModal.classList.remove('hidden');
             shareModal.querySelector('.modal-content').classList.add('scale-100');
         }
+        
         function handleCopyToClipboard() {
             shareText.select();
             shareText.setSelectionRange(0, 99999);
@@ -611,6 +573,7 @@
                 console.error('Fallback: Oops, unable to copy', err);
             }
         }
+
         async function handleAddPerson(e) {
             e.preventDefault();
             const personName = addPersonForm.personName.value.trim();
@@ -621,42 +584,52 @@
                     newPerson.id = personId;
                     people.push(newPerson);
                     renderPeople();
-                    populatePeopleSelectors(); // Repopulate filters with the new person
-                    renderExpenses();
+                    updateSelectOptions();
                     addPersonForm.reset();
                 } catch (error) {
                     console.error('Error agregando persona:', error);
                 }
             }
         }
+        
         async function checkAndCreateRecurringExpenses() {
             if (isCheckingRecurring || recurringExpenses.length === 0) return;
             isCheckingRecurring = true;
+
             const today = new Date();
             const newExpensesCreated = [];
+
             for (const rule of recurringExpenses) {
                 const generatedExpensesForRule = expenses.filter(e => e.recurringRuleId === rule.id);
                 let lastGenDate;
+
                 if (generatedExpensesForRule.length > 0) {
                     generatedExpensesForRule.sort((a, b) => new Date(b.date) - new Date(a.date));
                     lastGenDate = new Date(generatedExpensesForRule[0].date + 'T00:00:00');
                 } else {
+                    // BUG FIX: If no expenses exist for this rule, it's brand new.
+                    // To prevent generating past expenses, treat the "last generated date" as today.
                     lastGenDate = new Date();
                 }
+
                 let cursorDate = new Date(lastGenDate.getUTCFullYear(), lastGenDate.getUTCMonth() + 1, 1);
+
                 while (cursorDate <= today) {
                     const year = cursorDate.getFullYear();
                     const month = cursorDate.getMonth();
+                    
                     const expenseAlreadyExists = expenses.some(exp =>
                         exp.recurringRuleId === rule.id &&
                         new Date(exp.date).getUTCFullYear() === year &&
                         new Date(exp.date).getUTCMonth() === month
                     );
+
                     if (!expenseAlreadyExists) {
                         const lastDayOfMonth = new Date(year, month + 1, 0).getDate();
                         const chargeDay = Math.min(rule.dayOfMonth, lastDayOfMonth);
                         const newExpenseDate = new Date(Date.UTC(year, month, chargeDay));
                         const todayWithoutTime = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+
                         if (newExpenseDate <= todayWithoutTime) {
                             const expenseData = {
                                 personId: rule.personId,
@@ -672,6 +645,7 @@
                     cursorDate = new Date(cursorDate.getFullYear(), cursorDate.getMonth() + 1, 1);
                 }
             }
+
             for (const expenseData of newExpensesCreated) {
                 try {
                     const expenseId = await addToStore(STORES.EXPENSES, expenseData);
@@ -681,25 +655,26 @@
                     console.error("Error creating recurring expense:", error);
                 }
             }
+            
             isCheckingRecurring = false;
         }
+
         async function handleAddExpense(e) {
             e.preventDefault();
-            const personId = parseInt(expensePersonSelect.value);
-            const personName = expensePersonSelect.options[expensePersonSelect.selectedIndex].dataset.name;
+            const personId = parseInt(addExpenseForm.expensePerson.value);
+            const personName = addExpenseForm.expensePerson.options[addExpenseForm.expensePerson.selectedIndex].dataset.name;
             const description = addExpenseForm.expenseDescription.value.trim();
             const amount = parseFloat(addExpenseForm.expenseAmount.value);
             const isRecurring = isRecurringCheckbox.checked;
             const today = new Date();
-            const year = today.getFullYear();
-            const month = (today.getMonth() + 1).toString().padStart(2, '0');
-            const day = today.getDate().toString().padStart(2, '0');
-            const dateString = `${year}-${month}-${day}`;
+
             if (!personId || !description || !amount) return;
+
             try {
                 if (isRecurring) {
                     const recurringType = document.querySelector('input[name="recurringType"]:checked').value;
                     let dayOfMonth;
+
                     if (recurringType === 'specific') {
                         const specificDay = parseInt(document.getElementById('specificDayInput').value);
                         if (!specificDay || specificDay < 1 || specificDay > 31) {
@@ -710,20 +685,33 @@
                     } else {
                         dayOfMonth = today.getDate();
                     }
+                    
+                    // 1. Create and save the recurring RULE
                     const recurringData = { personId, personName, description, amount, dayOfMonth };
                     const recurringId = await addToStore(STORES.RECURRING_EXPENSES, recurringData);
                     recurringData.id = recurringId;
                     recurringExpenses.push(recurringData);
-                    const firstExpenseData = { personId, personName, description, amount, date: dateString, recurringRuleId: recurringId };
+
+                    // 2. Manually create and save the FIRST expense instance for today.
+                    const firstExpenseData = {
+                        personId,
+                        personName,
+                        description,
+                        amount,
+                        date: today.toISOString().split('T')[0], // Use today's date
+                        recurringRuleId: recurringId // Link it to the new rule
+                    };
                     const firstExpenseId = await addToStore(STORES.EXPENSES, firstExpenseData);
                     firstExpenseData.id = firstExpenseId;
                     expenses.push(firstExpenseData);
+
                 } else {
-                    const expenseData = { personId, personName, description, amount, date: dateString };
+                    const expenseData = { personId, personName, description, amount, date: today.toISOString().split('T')[0] };
                     const expenseId = await addToStore(STORES.EXPENSES, expenseData);
                     expenseData.id = expenseId;
                     expenses.push(expenseData);
                 }
+                
                 addExpenseForm.reset();
                 recurringOptionsDiv.classList.add('hidden');
                 specificDayWrapper.classList.add('hidden');
@@ -734,6 +722,7 @@
                 console.error('Error agregando gasto:', error);
             }
         }
+
         async function handleDeleteRecurringExpense(ruleId) {
             try {
                 await deleteFromStore(STORES.RECURRING_EXPENSES, ruleId);
@@ -744,6 +733,7 @@
                 console.error("Error deleting recurring rule:", error);
             }
         }
+
         async function handleDeletePerson(personId) {
              showConfirmationModal(
                 'Eliminar Persona',
@@ -753,13 +743,16 @@
                         const expensesToDelete = expenses.filter(e => e.personId === personId);
                         for (const expense of expensesToDelete) await deleteFromStore(STORES.EXPENSES, expense.id);
                         expenses = expenses.filter(e => e.personId !== personId);
+                        
                         const recurringToDelete = recurringExpenses.filter(r => r.personId === personId);
                         for (const recurring of recurringToDelete) await deleteFromStore(STORES.RECURRING_EXPENSES, recurring.id);
                         recurringExpenses = recurringExpenses.filter(r => r.personId !== personId);
+                        
                         await deleteFromStore(STORES.PEOPLE, personId);
                         people = people.filter(p => p.id !== personId);
+                        
                         renderPeople();
-                        populatePeopleSelectors();
+                        updateSelectOptions();
                         renderExpenses();
                     } catch (error) {
                         console.error("Error al eliminar persona y sus datos: ", error);
@@ -769,6 +762,7 @@
                 }
             );
         }
+
         async function handleDeleteExpense(expenseId) {
             try {
                 await deleteFromStore(STORES.EXPENSES, expenseId);
@@ -778,6 +772,7 @@
                 console.error('Error eliminando gasto:', error);
             }
         }
+        
         async function handleDeleteVisibleExpenses() {
             const visibleExpenses = getFilteredExpenses();
             if (visibleExpenses.length === 0) {
@@ -802,98 +797,19 @@
                 }
             );
         }
-
-        // --- Multi-select Filter Functions ---
-        function populatePeopleSelectors() {
-            const addExpenseOptions = people.map(p => `<option value="${p.id}" data-name="${p.name}">${p.name}</option>`).join('');
-            expensePersonSelect.innerHTML = '<option value="">Selecciona una persona</option>' + addExpenseOptions;
-
-            filterPersonList.innerHTML = '';
-            
-            if(people.length > 0) {
-                const selectAllLi = document.createElement('li');
-                selectAllLi.className = 'px-3 py-2 text-sm text-gray-800 hover:bg-gray-100';
-                selectAllLi.innerHTML = `<label class="flex items-center space-x-3 cursor-pointer"><input type="checkbox" id="selectAllPeopleCheckbox" class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"><span class="font-semibold">Seleccionar todo</span></label>`;
-                filterPersonList.appendChild(selectAllLi);
-                
-                const separator = document.createElement('div');
-                separator.className = 'border-t border-gray-200 my-1';
-                filterPersonList.appendChild(separator);
-
-                people.forEach(person => {
-                    const li = document.createElement('li');
-                    li.className = 'px-3 py-2 text-sm text-gray-800 hover:bg-gray-100';
-                    li.innerHTML = `<label class="flex items-center space-x-3 cursor-pointer"><input type="checkbox" data-person-id="${person.id}" class="person-checkbox h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"><span>${person.name}</span></label>`;
-                    filterPersonList.appendChild(li);
-                });
-            } else {
-                 filterPersonList.innerHTML = `<li class="px-3 py-2 text-sm text-gray-500">No hay personas agregadas.</li>`;
-            }
-
-            selectedPersonIds = people.map(p => p.id);
-            updateMultiSelectCheckboxes();
-            updateFilterPersonButtonText();
-
-            const selectAllCheckbox = document.getElementById('selectAllPeopleCheckbox');
-            if(selectAllCheckbox) {
-                selectAllCheckbox.addEventListener('change', handleSelectAllChange);
-            }
-            filterPersonList.querySelectorAll('.person-checkbox').forEach(checkbox => {
-                checkbox.addEventListener('change', handlePersonCheckboxChange);
-            });
-        }
-        function handleSelectAllChange(e) {
-            selectedPersonIds = e.target.checked ? people.map(p => p.id) : [];
-            updateMultiSelectCheckboxes();
-            updateFilterPersonButtonText();
-            renderExpenses();
-        }
-        function handlePersonCheckboxChange() {
-            selectedPersonIds = Array.from(document.querySelectorAll('.person-checkbox:checked')).map(cb => parseInt(cb.dataset.personId));
-            updateMultiSelectCheckboxes();
-            updateFilterPersonButtonText();
-            renderExpenses();
-        }
-        function updateMultiSelectCheckboxes() {
-            const personCheckboxes = document.querySelectorAll('.person-checkbox');
-            personCheckboxes.forEach(cb => {
-                cb.checked = selectedPersonIds.includes(parseInt(cb.dataset.personId));
-            });
-            const selectAllCheckbox = document.getElementById('selectAllPeopleCheckbox');
-            if (selectAllCheckbox) {
-                if (selectedPersonIds.length === people.length && people.length > 0) {
-                    selectAllCheckbox.checked = true;
-                    selectAllCheckbox.indeterminate = false;
-                } else if (selectedPersonIds.length === 0) {
-                    selectAllCheckbox.checked = false;
-                    selectAllCheckbox.indeterminate = false;
-                } else {
-                    selectAllCheckbox.checked = false;
-                    selectAllCheckbox.indeterminate = true;
-                }
-            }
-        }
-        function updateFilterPersonButtonText() {
-            if (selectedPersonIds.length === people.length) {
-                filterPersonText.textContent = 'Todas las personas';
-            } else if (selectedPersonIds.length === 0) {
-                filterPersonText.textContent = 'Ninguna persona';
-            } else if (selectedPersonIds.length === 1) {
-                const person = people.find(p => p.id === selectedPersonIds[0]);
-                filterPersonText.textContent = person ? person.name : '1 seleccionado';
-            } else {
-                filterPersonText.textContent = `${selectedPersonIds.length} personas seleccionadas`;
-            }
-        }
         
         // --- INICIALIZACIÓN Y EVENT LISTENERS ---
+        
         document.addEventListener('DOMContentLoaded', loadData);
+
         menuButton.addEventListener('click', (e) => {
             e.stopPropagation();
             sidebar.classList.toggle('-translate-x-full');
             sidebarOverlay.classList.toggle('hidden');
         });
+
         sidebarOverlay.addEventListener('click', closeSidebar);
+
         sidebarLinks.forEach(link => {
             link.addEventListener('click', e => {
                 e.preventDefault();
@@ -902,35 +818,35 @@
                 document.getElementById(targetViewId).classList.remove('hidden');
                 sidebarLinks.forEach(l => l.classList.remove('bg-gray-700'));
                 link.classList.add('bg-gray-700');
-                const headerInfo = viewHeaders[targetViewId];
-                if(headerInfo){
-                    desktopHeaderTitle.textContent = headerInfo.title;
-                    desktopHeaderSubtitle.textContent = headerInfo.subtitle;
-                    mobileHeaderTitle.textContent = headerInfo.title;
-                    mobileHeaderSubtitle.textContent = headerInfo.subtitle;
-                }
                 if (window.innerWidth < 768) closeSidebar();
             });
         });
+
         addPersonForm.addEventListener('submit', handleAddPerson);
         addExpenseForm.addEventListener('submit', handleAddExpense);
+        
         peopleListDiv.addEventListener('click', (e) => {
             const target = e.target.closest('button');
             if (!target) return;
             if (target.matches('.delete-person-btn')) handleDeletePerson(parseInt(target.dataset.id));
             if (target.matches('.manage-recurring-btn')) showRecurringModal(parseInt(target.dataset.personId), target.dataset.personName);
         });
+        
         recurringListDiv.addEventListener('click', (e) => {
             const target = e.target.closest('button');
              if (target && target.matches('.delete-recurring-btn')) handleDeleteRecurringExpense(parseInt(target.dataset.id));
         });
+
         expensesListDiv.addEventListener('click', (e) => {
             const target = e.target.closest('button.delete-expense-btn');
               if (target) handleDeleteExpense(parseInt(target.dataset.id));
         });
-        [filterMonthCheckbox, filterStartDateInput].forEach(el => el.addEventListener('change', renderExpenses));
+        
+        [filterPersonSelect, filterMonthCheckbox, filterStartDateInput].forEach(el => el.addEventListener('change', renderExpenses));
+        
         deleteVisibleButton.addEventListener('click', handleDeleteVisibleExpenses);
         printButton.addEventListener('click', handleGenerateShareableText);
+
         cancelButton.addEventListener('click', closeAllModals);
         confirmButton.addEventListener('click', () => {
             if (typeof confirmAction === 'function') confirmAction();
@@ -938,26 +854,21 @@
         closeRecurringModalButton.addEventListener('click', closeAllModals);
         closeShareModalButton.addEventListener('click', closeAllModals);
         copyButton.addEventListener('click', handleCopyToClipboard);
+
+        // Event listeners for new recurring options
         isRecurringCheckbox.addEventListener('change', () => {
             recurringOptionsDiv.classList.toggle('hidden', !isRecurringCheckbox.checked);
             if(isRecurringCheckbox.checked) {
                 todayDateSpan.textContent = new Date().getDate();
             }
         });
+
         document.querySelectorAll('input[name="recurringType"]').forEach(radio => {
             radio.addEventListener('change', (e) => {
                 specificDayWrapper.classList.toggle('hidden', e.target.value !== 'specific');
             });
         });
-        filterPersonButton.addEventListener('click', () => filterPersonDropdown.classList.toggle('hidden'));
-        document.addEventListener('click', (e) => {
-            if (!filterPersonContainer.contains(e.target)) {
-                filterPersonDropdown.classList.add('hidden');
-            }
-        });
 
     </script>
 </body>
 </html>
-
-    
